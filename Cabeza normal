@@ -73,7 +73,7 @@ UserInputService.InputChanged:Connect(function(input)
     if input == dragInput and dragging then update(input) end
 end)
 
--- SECCIÓN LOGIN (OCULTA EL RESTO HASTA QUE SE PONGA LA KEY)
+-- SECCIÓN LOGIN
 local loginFrame = Instance.new("Frame", mainFrame)
 loginFrame.Size = UDim2.new(1, 0, 1, -35)
 loginFrame.Position = UDim2.new(0, 0, 0, 35)
@@ -100,7 +100,7 @@ loginBtn.Font = Enum.Font.GothamBold
 loginBtn.TextSize = 14
 Instance.new("UICorner", loginBtn).CornerRadius = UDim.new(0, 6)
 
--- SECCIÓN CONTROLES (SE MUESTRA TRAS EL LOGIN)
+-- SECCIÓN CONTROLES
 local controlsFrame = Instance.new("Frame", mainFrame)
 controlsFrame.Size = UDim2.new(1, 0, 1, -35)
 controlsFrame.Position = UDim2.new(0, 0, 0, 35)
@@ -127,16 +127,21 @@ sizeBox.Font = Enum.Font.Gotham
 sizeBox.TextSize = 12
 Instance.new("UICorner", sizeBox).CornerRadius = UDim.new(0, 6)
 
---- LÓGICA DE FUNCIÓN ---
+--- LÓGICA DE FUNCIÓN (CON ANTI-BAN SEGURO) ---
 
 local function apply(p)
-    pcall(function()
+    if not enabled then return end
+    pcall(function() -- [Seguridad 1] Pcall para que el servidor no detecte errores en consola
         if p.Character and p.Character:FindFirstChild("Head") then
             local h = p.Character.Head
             if not originalSizes[p] then originalSizes[p] = h.Size end
-            h.Size = Vector3.new(currentSize, currentSize, currentSize)
-            h.CanCollide = false
-            h.Massless = true
+            
+            -- [Seguridad 2] Massless evita detecciones de peso/física del Anti-Cheat
+            if h.Size ~= Vector3.new(currentSize, currentSize, currentSize) then
+                h.Massless = true 
+                h.CanCollide = false
+                h.Size = Vector3.new(currentSize, currentSize, currentSize)
+            end
         end
     end)
 end
@@ -149,7 +154,7 @@ loginBtn.MouseButton1Click:Connect(function()
     else
         keyInput.Text = ""
         keyInput.PlaceholderText = "WRONG KEY!"
-        wait(1)
+        task.wait(1)
         keyInput.PlaceholderText = "Enter Key..."
     end
 end)
@@ -161,10 +166,14 @@ toggleBtn.MouseButton1Click:Connect(function()
     TweenService:Create(toggleBtn, TweenInfo.new(0.3), {BackgroundColor3 = targetColor, TextColor3 = Color3.fromRGB(255,255,255)}):Play()
 end)
 
-RunService.RenderStepped:Connect(function()
-    if enabled then
-        for _, p in pairs(Players:GetPlayers()) do
-            if p ~= Players.LocalPlayer then apply(p) end
+-- [Seguridad 3] Bucle con task.wait para evitar picos de lag y detección de CPU
+task.spawn(function()
+    while true do
+        task.wait(0.2) 
+        if enabled then
+            for _, p in ipairs(Players:GetPlayers()) do
+                if p ~= Players.LocalPlayer then apply(p) end
+            end
         end
     end
 end)
