@@ -1,0 +1,235 @@
+--[[ 
+    ACUSADO NINJA HUB (ESP + CREAM HEAD + DRAGGABLE) 
+    Key: BACK01
+]]
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+
+local KEY_SYSTEM = "BACK01"
+local enabled = false
+local currentSize = 9
+local espEnabled = false
+local originalSizes = {}
+
+-- Color Crema para la cabeza
+local CREAM_COLOR = Color3.fromRGB(255, 253, 208)
+
+-- Configuración de Interfaz
+local THEME_BLUE = Color3.fromRGB(0, 120, 255)
+local BG_DARK = Color3.fromRGB(10, 10, 10)
+local ACCENT = Color3.fromRGB(0, 200, 255)
+
+-- Contenedor Principal
+local gui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
+gui.Name = "AcusadoNinjaHub_V2"
+gui.ResetOnSpawn = false
+
+local mainFrame = Instance.new("Frame", gui)
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 240, 0, 160)
+mainFrame.Position = UDim2.new(0.5, -120, 0.4, -80)
+mainFrame.BackgroundColor3 = BG_DARK
+mainFrame.BorderSizePixel = 0
+
+local mainCorner = Instance.new("UICorner", mainFrame)
+mainCorner.CornerRadius = UDim.new(0, 12)
+
+local stroke = Instance.new("UIStroke", mainFrame)
+stroke.Thickness = 2
+stroke.Color = THEME_BLUE
+stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+-- Barra de Título (Para Arrastrar)
+local titleBar = Instance.new("TextLabel", mainFrame)
+titleBar.Size = UDim2.new(1, 0, 0, 35)
+titleBar.BackgroundTransparency = 1
+titleBar.Text = "  ACUSADO NINJA HUB"
+titleBar.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleBar.Font = Enum.Font.GothamBold
+titleBar.TextSize = 14
+titleBar.TextXAlignment = Enum.TextXAlignment.Left
+
+-- [ FUNCIONALIDAD DE ARRASTRE ]
+local dragging, dragInput, dragStart, startPos
+local function update(input)
+    local delta = input.Position - dragStart
+    mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+mainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then dragging = false end
+        end)
+    end
+end)
+
+mainFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then update(input) end
+end)
+
+-- SECCIÓN LOGIN
+local loginFrame = Instance.new("Frame", mainFrame)
+loginFrame.Size = UDim2.new(1, 0, 1, -35)
+loginFrame.Position = UDim2.new(0, 0, 0, 35)
+loginFrame.BackgroundTransparency = 1
+
+local keyInput = Instance.new("TextBox", loginFrame)
+keyInput.Size = UDim2.new(0.8, 0, 0, 30)
+keyInput.Position = UDim2.new(0.1, 0, 0.2, 0)
+keyInput.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+keyInput.PlaceholderText = "Enter Key..."
+keyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+Instance.new("UICorner", keyInput)
+
+local loginBtn = Instance.new("TextButton", loginFrame)
+loginBtn.Size = UDim2.new(0.8, 0, 0, 30)
+loginBtn.Position = UDim2.new(0.1, 0, 0.55, 0)
+loginBtn.BackgroundColor3 = THEME_BLUE
+loginBtn.Text = "VERIFY"
+loginBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+loginBtn.Font = Enum.Font.GothamBold
+Instance.new("UICorner", loginBtn)
+
+-- SECCIÓN CONTROLES
+local controlsFrame = Instance.new("Frame", mainFrame)
+controlsFrame.Size = UDim2.new(1, 0, 1, -35)
+controlsFrame.Position = UDim2.new(0, 0, 0, 35)
+controlsFrame.BackgroundTransparency = 1
+controlsFrame.Visible = false
+
+local toggleBtn = Instance.new("TextButton", controlsFrame)
+toggleBtn.Size = UDim2.new(0.9, 0, 0, 35)
+toggleBtn.Position = UDim2.new(0.05, 0, 0.05, 0)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+toggleBtn.Text = "HEADSIZE: OFF"
+toggleBtn.TextColor3 = Color3.fromRGB(150, 150, 150)
+toggleBtn.Font = Enum.Font.GothamBold
+Instance.new("UICorner", toggleBtn)
+
+local espBtn = Instance.new("TextButton", controlsFrame)
+espBtn.Size = UDim2.new(0.9, 0, 0, 35)
+espBtn.Position = UDim2.new(0.05, 0, 0.38, 0)
+espBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+espBtn.Text = "ESP: OFF"
+espBtn.TextColor3 = Color3.fromRGB(150, 150, 150)
+espBtn.Font = Enum.Font.GothamBold
+Instance.new("UICorner", espBtn)
+
+local sizeBox = Instance.new("TextBox", controlsFrame)
+sizeBox.Size = UDim2.new(0.9, 0, 0, 25)
+sizeBox.Position = UDim2.new(0.05, 0, 0.72, 0)
+sizeBox.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+sizeBox.Text = "Size: " .. currentSize
+sizeBox.TextColor3 = ACCENT
+Instance.new("UICorner", sizeBox)
+
+--- LÓGICA ESP ---
+local function createESP(player)
+    local box = Drawing.new("Square")
+    local name = Drawing.new("Text")
+    local tracer = Drawing.new("Line")
+    local invText = Drawing.new("Text")
+
+    RunService.RenderStepped:Connect(function()
+        if espEnabled and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player ~= LocalPlayer then
+            local hrp = player.Character.HumanoidRootPart
+            local pos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
+
+            if onScreen then
+                box.Visible = true
+                box.Size = Vector2.new(2000 / pos.Z, 3000 / pos.Z)
+                box.Position = Vector2.new(pos.X - box.Size.X / 2, pos.Y - box.Size.Y / 2)
+                box.Color = THEME_BLUE
+                box.Filled = false
+
+                name.Visible = true
+                name.Text = player.Name
+                name.Position = Vector2.new(pos.X, pos.Y - box.Size.Y / 2 - 15)
+                name.Outline = true
+                name.Center = true
+
+                tracer.Visible = true
+                tracer.From = Vector2.new(Camera.ViewportSize.X / 2, 0)
+                tracer.To = Vector2.new(pos.X, pos.Y - box.Size.Y / 2)
+                tracer.Color = THEME_BLUE
+
+                local tool = player.Character:FindFirstChildOfClass("Tool")
+                invText.Visible = true
+                invText.Text = tool and "["..tool.Name.."]" or "[Empty]"
+                invText.Position = Vector2.new(pos.X, pos.Y + box.Size.Y / 2 + 5)
+                invText.Outline = true
+                invText.Center = true
+            else
+                box.Visible = false; name.Visible = false; tracer.Visible = false; invText.Visible = false
+            end
+        else
+            box.Visible = false; name.Visible = false; tracer.Visible = false; invText.Visible = false
+        end
+    end)
+end
+
+for _, v in pairs(Players:GetPlayers()) do createESP(v) end
+Players.PlayerAdded:Connect(createESP)
+
+--- LÓGICA HEADSIZE (SAFE & CREAM) ---
+local function applySafe(p)
+    pcall(function()
+        if p.Character and p.Character:FindFirstChild("Head") then
+            local h = p.Character.Head
+            h.Size = Vector3.new(currentSize, currentSize, currentSize)
+            h.Color = CREAM_COLOR -- Cabeza color crema
+            h.CanCollide = false
+            h.Massless = true
+        end
+    end)
+end
+
+loginBtn.MouseButton1Click:Connect(function()
+    if keyInput.Text == KEY_SYSTEM then
+        loginFrame.Visible = false
+        controlsFrame.Visible = true
+        mainFrame:TweenSize(UDim2.new(0, 240, 0, 200), "Out", "Quad", 0.3, true)
+    end
+end)
+
+toggleBtn.MouseButton1Click:Connect(function()
+    enabled = not enabled
+    toggleBtn.Text = enabled and "HEADSIZE: ACTIVE" or "HEADSIZE: OFF"
+    TweenService:Create(toggleBtn, TweenInfo.new(0.3), {BackgroundColor3 = enabled and THEME_BLUE or Color3.fromRGB(30,30,30), TextColor3 = Color3.fromRGB(255,255,255)}):Play()
+end)
+
+espBtn.MouseButton1Click:Connect(function()
+    espEnabled = not espEnabled
+    espBtn.Text = espEnabled and "ESP: ACTIVE" or "ESP: OFF"
+    TweenService:Create(espBtn, TweenInfo.new(0.3), {BackgroundColor3 = espEnabled and THEME_BLUE or Color3.fromRGB(30,30,30), TextColor3 = Color3.fromRGB(255,255,255)}):Play()
+end)
+
+task.spawn(function()
+    while true do
+        task.wait(0.2)
+        if enabled then
+            for _, p in ipairs(Players:GetPlayers()) do if p ~= LocalPlayer then applySafe(p) end end
+        end
+    end
+end)
+
+sizeBox.FocusLost:Connect(function()
+    local val = tonumber(sizeBox.Text:match("%d+"))
+    if val then currentSize = math.clamp(val, 1, 100) end
+    sizeBox.Text = "Size: " .. currentSize
+end)
