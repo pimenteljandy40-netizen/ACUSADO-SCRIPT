@@ -1,0 +1,185 @@
+-- ACUSADO NINJA HUB - FIXED EDITION
+-- KEY: ACUSADO23 | NO-LAG HITBOX + RAINBOW
+
+local Players = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local LogService = game:GetService("LogService")
+
+-- [SEGURIDAD ANTI-BAN]
+local function Protect()
+    pcall(function()
+        for i,v in pairs(getconnections(LogService.MessageOut)) do v:Disable() end
+    end)
+    Players.PlayerAdded:Connect(function(plr)
+        if plr:GetRankInGroup(1200769) > 20 then Players.LocalPlayer:Kick("STAFF") end
+    end)
+end
+Protect()
+
+if CoreGui:FindFirstChild("AcusadoNinjaHub_V2") then CoreGui.AcusadoNinjaHub_V2:Destroy() end
+
+local ScreenGui = Instance.new("ScreenGui", CoreGui)
+ScreenGui.Name = "AcusadoNinjaHub_V2"
+ScreenGui.ResetOnSpawn = false
+
+-- PANEL PRINCIPAL
+local Main = Instance.new("Frame", ScreenGui)
+Main.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+Main.BackgroundTransparency = 0.1
+Main.Size = UDim2.new(0, 280, 0, 290)
+Main.Position = UDim2.new(0.05, 0, 0.3, 0)
+Main.Active = true
+Main.Draggable = true
+
+local MainCorner = Instance.new("UICorner", Main)
+MainCorner.CornerRadius = UDim.new(0, 10)
+
+local Stroke = Instance.new("UIStroke", Main)
+Stroke.Thickness = 2.5
+Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+-- TÍTULO
+local Title = Instance.new("TextLabel", Main)
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+Title.BackgroundTransparency = 0.5
+Title.Text = "★ ACUSADO23 HUB ★"
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 17
+Instance.new("UICorner", Title).CornerRadius = UDim.new(0, 10)
+
+-- BOTÓN RE-ABRIR
+local OpenBtn = Instance.new("TextButton", ScreenGui)
+OpenBtn.Size = UDim2.new(0, 140, 0, 35)
+OpenBtn.Position = UDim2.new(0, 10, 0.5, 0)
+OpenBtn.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+OpenBtn.Text = "OPEN ACUSADO23"
+OpenBtn.Font = Enum.Font.GothamBold
+OpenBtn.TextSize = 13
+OpenBtn.Visible = false
+Instance.new("UICorner", OpenBtn).CornerRadius = UDim.new(0, 8)
+local OpenStroke = Instance.new("UIStroke", OpenBtn)
+OpenStroke.Thickness = 2
+
+-- RAINBOW SYNC
+task.spawn(function()
+    while true do
+        for i = 0, 1, 0.005 do
+            local color = Color3.fromHSV(i, 0.8, 1)
+            Stroke.Color = color
+            Title.TextColor3 = color
+            OpenStroke.Color = color
+            OpenBtn.TextColor3 = color
+            task.wait(0.02)
+        end
+    end
+end)
+
+-- LOGICA VISIBILIDAD
+local CloseBtn = Instance.new("TextButton", Main)
+CloseBtn.Size = UDim2.new(0, 30, 0, 30)
+CloseBtn.Position = UDim2.new(1, -35, 0, 5)
+CloseBtn.Text = "×"
+CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseBtn.BackgroundTransparency = 1
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.TextSize = 24
+CloseBtn.MouseButton1Click:Connect(function() Main.Visible = false; OpenBtn.Visible = true end)
+OpenBtn.MouseButton1Click:Connect(function() Main.Visible = true; OpenBtn.Visible = false end)
+
+-- ESTADOS
+_G.Hitbox = false; _G.Box = false; _G.Tracers = false; _G.Names = false
+
+local function CreateBtn(name, pos, callback)
+    local btn = Instance.new("TextButton", Main)
+    btn.Size = UDim2.new(0.9, 0, 0, 35)
+    btn.Position = pos
+    btn.Text = name
+    btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    btn.TextColor3 = Color3.fromRGB(200, 200, 200)
+    btn.Font = Enum.Font.GothamSemibold
+    btn.TextSize = 12
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+    local bStroke = Instance.new("UIStroke", btn)
+    bStroke.Thickness = 1; bStroke.Color = Color3.fromRGB(60, 60, 60)
+
+    btn.MouseButton1Click:Connect(function() 
+        callback() 
+        local act = btn.BackgroundColor3 == Color3.fromRGB(30, 30, 30)
+        btn.BackgroundColor3 = act and Color3.fromRGB(50, 50, 50) or Color3.fromRGB(30, 30, 30)
+        bStroke.Color = act and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(60, 60, 60)
+    end)
+end
+
+local SizeInput = Instance.new("TextBox", Main)
+SizeInput.Size = UDim2.new(0.9, 0, 0, 35)
+SizeInput.Position = UDim2.new(0.05, 0, 0.18, 0)
+SizeInput.Text = "12"
+SizeInput.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+SizeInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+SizeInput.Font = Enum.Font.Gotham
+Instance.new("UICorner", SizeInput).CornerRadius = UDim.new(0, 6)
+
+-- BOTONES
+CreateBtn("RUN HITBOX", UDim2.new(0.05, 0, 0.35, 0), function() _G.Hitbox = not _G.Hitbox end)
+CreateBtn("ESP BOX (OUTLINE)", UDim2.new(0.05, 0, 0.49, 0), function() _G.Box = not _G.Box end)
+CreateBtn("ESP TRACERS", UDim2.new(0.05, 0, 0.63, 0), function() _G.Tracers = not _G.Tracers end)
+CreateBtn("ESP NAMES", UDim2.new(0.05, 0, 0.77, 0), function() _G.Names = not _G.Names end)
+
+-- MOTOR HITBOX OPTIMIZADO (SIN LAG/FREEZE)
+task.spawn(function()
+    while task.wait(0.5) do
+        if _G.Hitbox then
+            local s = tonumber(SizeInput.Text) or 12
+            for _, v in pairs(Players:GetPlayers()) do
+                if v ~= Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Head") then
+                    pcall(function()
+                        local head = v.Character.Head
+                        if head.Size.Y ~= s then -- Solo cambia si es necesario para evitar el freeze
+                            head.Size = Vector3.new(s, s, s)
+                            head.Transparency = 0.7
+                            head.CanCollide = false
+                            head.Massless = true -- Evita que el peso los detenga
+                        end
+                    end)
+                end
+            end
+        else
+            -- Resetear si se apaga
+            for _, v in pairs(Players:GetPlayers()) do
+                if v.Character and v.Character:FindFirstChild("Head") then
+                    pcall(function()
+                        if v.Character.Head.Size.Y ~= 1.2 then
+                           v.Character.Head.Size = Vector3.new(1.2, 1.2, 1.2)
+                           v.Character.Head.Transparency = 0
+                        end
+                    end)
+                end
+            end
+        end
+    end
+end)
+
+-- ESP MOTOR
+local function CreateESP(plr)
+    local Box = Drawing.new("Square")
+    local Tracer = Drawing.new("Line")
+    local Name = Drawing.new("Text")
+    RunService.RenderStepped:Connect(function()
+        if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+            local hrp = plr.Character.HumanoidRootPart
+            local pos, onScreen = Workspace.CurrentCamera:WorldToViewportPoint(hrp.Position)
+            if onScreen then
+                local sX, sY = 2200 / pos.Z, 2800 / pos.Z
+                Box.Visible = _G.Box; Box.Size = Vector2.new(sX, sY); Box.Position = Vector2.new(pos.X - sX/2, pos.Y - sY/2)
+                Box.Color = Color3.fromHSV(tick() % 5 / 5, 1, 1); Box.Filled = false; Box.Thickness = 1.5
+                Tracer.Visible = _G.Tracers; Tracer.From = Vector2.new(Workspace.CurrentCamera.ViewportSize.X / 2, 0); Tracer.To = Vector2.new(pos.X, pos.Y - sY/2); Tracer.Color = Color3.new(1, 1, 1)
+                Name.Visible = _G.Names; Name.Text = plr.Name; Name.Position = Vector2.new(pos.X, pos.Y - sY/2 - 18); Name.Center = true; Name.Outline = true; Name.Color = Color3.new(1,1,1)
+            else Box.Visible = false; Tracer.Visible = false; Name.Visible = false end
+        else Box.Visible = false; Tracer.Visible = false; Name.Visible = false end
+    end)
+end
+for _, p in pairs(Players:GetPlayers()) do if p ~= Players.LocalPlayer then CreateESP(p) end end
+Players.PlayerAdded:Connect(function(p) CreateESP(p) end)
