@@ -1,187 +1,92 @@
--- ACUSADO NINJA HUB (PROFESSIONAL & DRAGGABLE)
+-- ACUSADO NINJA HUB - MINI HITBOX EDITION
+-- KEY: ACUSADO23 | ULTRA COMPACT
+
 local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
+local CoreGui = game:GetService("CoreGui")
+local ScreenGui = Instance.new("ScreenGui", CoreGui)
+ScreenGui.Name = "AcusadoMini_V2"
 
-local KEY_SYSTEM = "BACK01"
-local enabled = false
-local currentSize = 9
-local originalSizes = {}
+-- PANEL ULTRA COMPACTO (SÓLO HITBOX)
+local Main = Instance.new("Frame", ScreenGui)
+Main.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+Main.Size = UDim2.new(0, 200, 0, 150) -- Mucho más pequeño
+Main.Position = UDim2.new(0.05, 0, 0.3, 0)
+Main.Active = true
+Main.Draggable = true
+Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 10)
 
--- Configuración de Interfaz
-local THEME_BLUE = Color3.fromRGB(0, 120, 255)
-local BG_DARK = Color3.fromRGB(10, 10, 10)
-local ACCENT = Color3.fromRGB(0, 200, 255)
+local Stroke = Instance.new("UIStroke", Main)
+Stroke.Thickness = 2.5
+Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
--- Contenedor Principal
-local gui = Instance.new("ScreenGui", Players.LocalPlayer:WaitForChild("PlayerGui"))
-gui.Name = "AcusadoNinjaHub_V2"
-gui.ResetOnSpawn = false
+-- TÍTULO CORTO
+local Title = Instance.new("TextLabel", Main)
+Title.Size = UDim2.new(1, 0, 0, 35)
+Title.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+Title.Text = "ACUSADO23 HITBOX"
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 14
+Title.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", Title).CornerRadius = UDim.new(0, 10)
 
-local mainFrame = Instance.new("Frame", gui)
-mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 240, 0, 160)
-mainFrame.Position = UDim2.new(0.5, -120, 0.4, -80)
-mainFrame.BackgroundColor3 = BG_DARK
-mainFrame.BorderSizePixel = 0
-mainFrame.Visible = true
-
-local mainCorner = Instance.new("UICorner", mainFrame)
-mainCorner.CornerRadius = UDim.new(0, 12)
-
-local stroke = Instance.new("UIStroke", mainFrame)
-stroke.Thickness = 2
-stroke.Color = THEME_BLUE
-stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-
--- Barra de Título (Para Arrastrar)
-local titleBar = Instance.new("TextLabel", mainFrame)
-titleBar.Size = UDim2.new(1, 0, 0, 35)
-titleBar.BackgroundTransparency = 1
-titleBar.Text = "  ACUSADO NINJA HUB"
-titleBar.TextColor3 = Color3.fromRGB(255, 255, 255)
-titleBar.Font = Enum.Font.GothamBold
-titleBar.TextSize = 14
-titleBar.TextXAlignment = Enum.TextXAlignment.Left
-
--- [ FUNCIONALIDAD DE ARRASTRE (DRAG) ]
-local dragging, dragInput, dragStart, startPos
-local function update(input)
-    local delta = input.Position - dragStart
-    mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-end
-
-mainFrame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = true
-        dragStart = input.Position
-        startPos = mainFrame.Position
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then dragging = false end
-        end)
-    end
-end)
-
-mainFrame.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-        dragInput = input
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if input == dragInput and dragging then update(input) end
-end)
-
--- SECCIÓN LOGIN
-local loginFrame = Instance.new("Frame", mainFrame)
-loginFrame.Size = UDim2.new(1, 0, 1, -35)
-loginFrame.Position = UDim2.new(0, 0, 0, 35)
-loginFrame.BackgroundTransparency = 1
-
-local keyInput = Instance.new("TextBox", loginFrame)
-keyInput.Size = UDim2.new(0.8, 0, 0, 30)
-keyInput.Position = UDim2.new(0.1, 0, 0.2, 0)
-keyInput.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-keyInput.PlaceholderText = "Enter Key..."
-keyInput.Text = ""
-keyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
-keyInput.Font = Enum.Font.Gotham
-keyInput.TextSize = 14
-Instance.new("UICorner", keyInput).CornerRadius = UDim.new(0, 6)
-
-local loginBtn = Instance.new("TextButton", loginFrame)
-loginBtn.Size = UDim2.new(0.8, 0, 0, 30)
-loginBtn.Position = UDim2.new(0.1, 0, 0.55, 0)
-loginBtn.BackgroundColor3 = THEME_BLUE
-loginBtn.Text = "VERIFY"
-loginBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-loginBtn.Font = Enum.Font.GothamBold
-loginBtn.TextSize = 14
-Instance.new("UICorner", loginBtn).CornerRadius = UDim.new(0, 6)
-
--- SECCIÓN CONTROLES
-local controlsFrame = Instance.new("Frame", mainFrame)
-controlsFrame.Size = UDim2.new(1, 0, 1, -35)
-controlsFrame.Position = UDim2.new(0, 0, 0, 35)
-controlsFrame.BackgroundTransparency = 1
-controlsFrame.Visible = false
-
-local toggleBtn = Instance.new("TextButton", controlsFrame)
-toggleBtn.Size = UDim2.new(0.9, 0, 0, 40)
-toggleBtn.Position = UDim2.new(0.05, 0, 0.1, 0)
-toggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-toggleBtn.Text = "OFF"
-toggleBtn.TextColor3 = Color3.fromRGB(150, 150, 150)
-toggleBtn.Font = Enum.Font.GothamBold
-toggleBtn.TextSize = 14
-Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(0, 8)
-
-local sizeBox = Instance.new("TextBox", controlsFrame)
-sizeBox.Size = UDim2.new(0.9, 0, 0, 30)
-sizeBox.Position = UDim2.new(0.05, 0, 0.55, 0)
-sizeBox.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-sizeBox.Text = "Size: " .. currentSize
-sizeBox.TextColor3 = ACCENT
-sizeBox.Font = Enum.Font.Gotham
-sizeBox.TextSize = 12
-Instance.new("UICorner", sizeBox).CornerRadius = UDim.new(0, 6)
-
---- LÓGICA DE FUNCIÓN (CON ANTI-BAN SEGURO) ---
-
-local function apply(p)
-    if not enabled then return end
-    pcall(function() -- [Seguridad 1] Pcall para que el servidor no detecte errores en consola
-        if p.Character and p.Character:FindFirstChild("Head") then
-            local h = p.Character.Head
-            if not originalSizes[p] then originalSizes[p] = h.Size end
-            
-            -- [Seguridad 2] Massless evita detecciones de peso/física del Anti-Cheat
-            if h.Size ~= Vector3.new(currentSize, currentSize, currentSize) then
-                h.Massless = true 
-                h.CanCollide = false
-                h.Size = Vector3.new(currentSize, currentSize, currentSize)
-            end
-        end
-    end)
-end
-
-loginBtn.MouseButton1Click:Connect(function()
-    if keyInput.Text == KEY_SYSTEM then
-        loginFrame.Visible = false
-        controlsFrame.Visible = true
-        TweenService:Create(mainFrame, TweenInfo.new(0.5), {Size = UDim2.new(0, 240, 0, 140)}):Play()
-    else
-        keyInput.Text = ""
-        keyInput.PlaceholderText = "WRONG KEY!"
-        task.wait(1)
-        keyInput.PlaceholderText = "Enter Key..."
-    end
-end)
-
-toggleBtn.MouseButton1Click:Connect(function()
-    enabled = not enabled
-    local targetColor = enabled and THEME_BLUE or Color3.fromRGB(30, 30, 30)
-    toggleBtn.Text = enabled and "ACTIVE" or "OFF"
-    TweenService:Create(toggleBtn, TweenInfo.new(0.3), {BackgroundColor3 = targetColor, TextColor3 = Color3.fromRGB(255,255,255)}):Play()
-end)
-
--- [Seguridad 3] Bucle con task.wait para evitar picos de lag y detección de CPU
+-- MOTOR RAINBOW
 task.spawn(function()
     while true do
-        task.wait(0.2) 
-        if enabled then
-            for _, p in ipairs(Players:GetPlayers()) do
-                if p ~= Players.LocalPlayer then apply(p) end
-            end
+        for i = 0, 1, 0.005 do
+            local color = Color3.fromHSV(i, 0.8, 1)
+            Stroke.Color = color
+            Title.TextColor3 = color
+            task.wait(0.02)
         end
     end
 end)
 
-sizeBox.FocusLost:Connect(function()
-    local val = tonumber(sizeBox.Text:match("%d+"))
-    if val then
-        currentSize = math.clamp(val, 1, 100)
+-- INPUT DE TAMAÑO
+local SizeInput = Instance.new("TextBox", Main)
+SizeInput.Size = UDim2.new(0.8, 0, 0, 30)
+SizeInput.Position = UDim2.new(0.1, 0, 0.35, 0)
+SizeInput.Text = "12"
+SizeInput.PlaceholderText = "Size"
+SizeInput.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+SizeInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+SizeInput.Font = Enum.Font.Gotham
+Instance.new("UICorner", SizeInput).CornerRadius = UDim.new(0, 6)
+
+-- BOTÓN RUN
+_G.Hitbox = false
+local RunBtn = Instance.new("TextButton", Main)
+RunBtn.Size = UDim2.new(0.8, 0, 0, 35)
+RunBtn.Position = UDim2.new(0.1, 0, 0.65, 0)
+RunBtn.Text = "ACTIVAR HITBOX"
+RunBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+RunBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+RunBtn.Font = Enum.Font.GothamBold
+Instance.new("UICorner", RunBtn).CornerRadius = UDim.new(0, 6)
+
+RunBtn.MouseButton1Click:Connect(function()
+    _G.Hitbox = not _G.Hitbox
+    RunBtn.Text = _G.Hitbox and "HITBOX: ON" or "HITBOX: OFF"
+    RunBtn.BackgroundColor3 = _G.Hitbox and Color3.fromRGB(50, 50, 50) or Color3.fromRGB(30, 30, 30)
+end)
+
+-- LÓGICA HITBOX (SIN LAG Y SIN KICK)
+task.spawn(function()
+    while task.wait(0.5) do
+        if _G.Hitbox then
+            local s = tonumber(SizeInput.Text) or 12
+            for _, v in pairs(Players:GetPlayers()) do
+                if v ~= Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Head") then
+                    pcall(function()
+                        local head = v.Character.Head
+                        if head.Size.Y ~= s then
+                            head.Size = Vector3.new(s, s, s)
+                            head.Transparency = 0.7
+                            head.CanCollide = false
+                            head.Massless = true
+                        end
+                    end)
+                end
+            end
+        end
     end
-    sizeBox.Text = "Size: " .. currentSize
 end)
