@@ -1,0 +1,167 @@
+-- // CONFIG
+local Settings = {
+    HeadSize = 10,
+    HitboxEnabled = false,
+    ESPEnabled = false,
+    Color = Color3.fromRGB(0, 255, 0),
+    Visible = true
+}
+
+-- // INTERFAZ "ACUSADO"
+local sg = Instance.new("ScreenGui", game:GetService("CoreGui"))
+local main = Instance.new("Frame", sg)
+main.Name = "AcusadoMain"
+main.Size = UDim2.new(0, 200, 0, 200)
+main.Position = UDim2.new(0.5, -100, 0.4, 0)
+main.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+main.Active = true
+main.Draggable = true
+
+local stroke = Instance.new("UIStroke", main)
+stroke.Color = Settings.Color
+stroke.Thickness = 2
+
+local title = Instance.new("TextLabel", main)
+title.Size = UDim2.new(1, 0, 0, 35)
+title.Text = "ACUSADO V4"
+title.TextColor3 = Settings.Color
+title.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 20
+
+-- Botón discreto para reabrir
+local openBtn = Instance.new("TextButton", sg)
+openBtn.Size = UDim2.new(0, 80, 0, 25)
+openBtn.Position = UDim2.new(0, 10, 0.9, 0)
+openBtn.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+openBtn.Text = "SHOW HUB"
+openBtn.TextColor3 = Settings.Color
+openBtn.Visible = false
+Instance.new("UICorner", openBtn)
+
+local function ToggleUI()
+    Settings.Visible = not Settings.Visible
+    main.Visible = Settings.Visible
+    openBtn.Visible = not Settings.Visible
+end
+
+game:GetService("UserInputService").InputBegan:Connect(function(input, gpe)
+    if not gpe and input.KeyCode == Enum.KeyCode.V then
+        ToggleUI()
+    end
+end)
+
+openBtn.MouseButton1Click:Connect(ToggleUI)
+
+-- // COMPONENTES
+local function createBtn(pos, text)
+    local btn = Instance.new("TextButton", main)
+    btn.Size = UDim2.new(0, 170, 0, 30)
+    btn.Position = pos
+    btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    btn.TextColor3 = Color3.new(1, 1, 1)
+    btn.Text = text
+    btn.Font = Enum.Font.SourceSansBold
+    return btn
+end
+
+local bHitbox = createBtn(UDim2.new(0, 15, 0, 45), "Hitbox: OFF")
+local bESP = createBtn(UDim2.new(0, 15, 0, 85), "ESP: OFF")
+
+-- // INPUT PARA CONFIGURAR EL SIZE (MANUAL)
+local sizeInput = Instance.new("TextBox", main)
+sizeInput.Size = UDim2.new(0, 170, 0, 30)
+sizeInput.Position = UDim2.new(0, 15, 0, 125)
+sizeInput.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+sizeInput.TextColor3 = Color3.new(1, 1, 1)
+sizeInput.Text = "Size: 10"
+sizeInput.Font = Enum.Font.SourceSansBold
+sizeInput.PlaceholderText = "Escribe el Size aquí"
+
+sizeInput.FocusLost:Connect(function()
+    local val = tonumber(sizeInput.Text:match("%d+"))
+    if val then
+        Settings.HeadSize = val
+        sizeInput.Text = "Size: " .. val
+    else
+        sizeInput.Text = "Size: " .. Settings.HeadSize
+    end
+end)
+
+-- // LOGICA BOTONES
+bHitbox.MouseButton1Click:Connect(function()
+    Settings.HitboxEnabled = not Settings.HitboxEnabled
+    bHitbox.Text = "Hitbox: " .. (Settings.HitboxEnabled and "ON" or "OFF")
+end)
+
+bESP.MouseButton1Click:Connect(function()
+    Settings.ESPEnabled = not Settings.ESPEnabled
+    bESP.Text = "ESP: " .. (Settings.ESPEnabled and "ON" or "OFF")
+end)
+
+-- // MOTOR ESP Y HITBOX
+local function AddESP(plr)
+    local Box = Drawing.new("Square")
+    Box.Thickness = 2
+    Box.Filled = false
+    local Tracer = Drawing.new("Line")
+    Tracer.Thickness = 2
+    local Info = Drawing.new("Text")
+    Info.Size = 14
+    Info.Center = true
+    Info.Outline = true
+
+    game:GetService("RunService").RenderStepped:Connect(function()
+        if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") and plr ~= game.Players.LocalPlayer then
+            local char = plr.Character
+            local head = char:FindFirstChild("Head")
+            local hrp = char.HumanoidRootPart
+            local pos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(hrp.Position)
+
+            if head then
+                if Settings.HitboxEnabled then
+                    if head.Size.Y ~= Settings.HeadSize then
+                        head.Size = Vector3.new(Settings.HeadSize, Settings.HeadSize, Settings.HeadSize)
+                        head.Transparency = 1
+                        head.CanCollide = false
+                        head.Massless = true
+                    end
+                elseif head.Size.Y ~= 1 then
+                    head.Size = Vector3.new(1, 1, 1)
+                    head.Transparency = 0
+                end
+            end
+
+            if onScreen and Settings.ESPEnabled then
+                local topPos = workspace.CurrentCamera:WorldToViewportPoint(hrp.Position + Vector3.new(0, 3, 0))
+                local bottomPos = workspace.CurrentCamera:WorldToViewportPoint(hrp.Position - Vector3.new(0, 3.5, 0))
+                local sizeY = math.abs(topPos.Y - bottomPos.Y)
+                local sizeX = sizeY * 0.6
+                local tool = char:FindFirstChildOfClass("Tool")
+                local dist = math.floor((game.Players.LocalPlayer.Character.HumanoidRootPart.Position - hrp.Position).Magnitude)
+
+                Box.Size = Vector2.new(sizeX, sizeY)
+                Box.Position = Vector2.new(pos.X - sizeX / 2, pos.Y - sizeY / 2)
+                Box.Color = Settings.Color
+                Box.Visible = true
+
+                Info.Text = string.format("%s\n[%sm] - %s", plr.Name, dist, (tool and tool.Name or "None"))
+                Info.Position = Vector2.new(pos.X, Box.Position.Y - 35)
+                Info.Color = Settings.Color
+                Info.Visible = true
+
+                Tracer.From = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, 0)
+                Tracer.To = Vector2.new(pos.X, Box.Position.Y)
+                Tracer.Color = Settings.Color
+                Tracer.Visible = true
+            else
+                Box.Visible = false Info.Visible = false Tracer.Visible = false
+            end
+        else
+            Box.Visible = false Info.Visible = false Tracer.Visible = false
+        end
+    end)
+end
+
+for _, p in pairs(game.Players:GetPlayers()) do AddESP(p) end
+game.Players.PlayerAdded:Connect(AddESP)
