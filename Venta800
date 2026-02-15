@@ -1,15 +1,23 @@
 -- ACUSADO NINJA HUB - ELITE SAFE FULL EDITION 👑 (PURPLE EDITION)
+-- [[ PROTECCIÓN ULTRA-SAFE + HITBOX INVISIBLE ]]
 local CLAVE_CORRECTA = "BACK01"
+
+local function SafeCall(f, ...)
+    local success, err = pcall(f, ...)
+    if not success and _G.DebugMode then warn("[ERROR]: " .. tostring(err)) end
+end
+
+if getgenv then getgenv().ACUSADO_LOADED = true end
+
 local Players = game:GetService("Players")
 local L_Plr = Players.LocalPlayer
 local RunService = game:GetService("RunService")
 local Camera = workspace.CurrentCamera
 local Mouse = L_Plr:GetMouse()
 
--- Colores del Tema
-local ColorPrincipal = Color3.fromRGB(120, 0, 255) -- Morado brillante
-local ColorFondo = Color3.fromRGB(5, 5, 5)        -- Negro profundo
-local ColorSecundario = Color3.fromRGB(20, 0, 40) -- Morado oscuro
+local ColorPrincipal = Color3.fromRGB(120, 0, 255)
+local ColorFondo = Color3.fromRGB(5, 5, 5)
+local ColorSecundario = Color3.fromRGB(20, 0, 40)
 
 local function RandomName()
     local str = ""
@@ -36,11 +44,9 @@ local function ExecuteHub()
     ScreenGui.Parent = GetSafeParent()
     ScreenGui.ResetOnSpawn = false
 
-    -- // EFECTO MORADO ESTÁTICO/SUAVE (Reemplaza al Rainbow si prefieres morado sólido) //
     local function ThemeColor(obj)
         task.spawn(function()
             while obj and obj.Parent do
-                -- En lugar de arcoíris, oscila entre tonos de morado
                 local pulse = (math.sin(tick() * 2) + 1) / 2
                 local targetColor = Color3.fromRGB(100 + (50 * pulse), 0, 200 + (55 * pulse))
                 if obj:IsA("UIStroke") then obj.Color = targetColor 
@@ -50,16 +56,15 @@ local function ExecuteHub()
         end)
     end
 
-    -- // VARIABLES GLOBALES //
     _G.Hitbox_Size = 15
     _G.Parts_Active = {Head = false, UpperTorso = false, Torso = false, LeftHand = false, RightHand = false, LeftFoot = false, RightFoot = false}
     _G.Box_Enabled = false; _G.Names_Enabled = false; _G.Inv_Enabled = false; _G.Tracer_Enabled = false
     _G.AuxilioMobile = false; _G.AutoLeave = true
 
-    -- // LÓGICA HITBOX //
+    -- // LÓGICA HITBOX (CABEZA INVISIBLE) //
     task.spawn(function()
         while task.wait(0.5) do
-            pcall(function()
+            SafeCall(function()
                 for _, p in pairs(Players:GetPlayers()) do
                     if p ~= L_Plr and p.Character then
                         for partName, isEnabled in pairs(_G.Parts_Active) do
@@ -67,7 +72,8 @@ local function ExecuteHub()
                             if part and part:IsA("BasePart") then
                                 if isEnabled then
                                     part.Size = Vector3.new(_G.Hitbox_Size, _G.Hitbox_Size, _G.Hitbox_Size)
-                                    part.Transparency = 0.6
+                                    -- Si es la cabeza, se vuelve invisible (1), si no, queda en 0.6
+                                    part.Transparency = (partName == "Head" and 1 or 0.6)
                                     part.Color = ColorPrincipal
                                     part.CanCollide = false 
                                     part.Massless = true 
@@ -88,19 +94,17 @@ local function ExecuteHub()
         end
     end)
 
-    -- // BOTÓN FLOTANTE N //
+    -- // INTERFAZ //
     local OpenBtn = Instance.new("TextButton", ScreenGui)
     OpenBtn.Size = UDim2.new(0, 50, 0, 50); OpenBtn.Position = UDim2.new(0, 15, 0.5, 0); OpenBtn.BackgroundColor3 = ColorFondo; OpenBtn.Text = "N"; OpenBtn.TextSize = 25; OpenBtn.Visible = false; OpenBtn.Active = true; OpenBtn.Draggable = true
     Instance.new("UICorner", OpenBtn).CornerRadius = UDim.new(1, 0); local OS = Instance.new("UIStroke", OpenBtn); OS.Thickness = 2; ThemeColor(OS); ThemeColor(OpenBtn)
 
-    -- // LOGIN //
     local KeyFrame = Instance.new("Frame", ScreenGui); KeyFrame.Size = UDim2.new(0, 400, 0, 250); KeyFrame.Position = UDim2.new(0.5, -200, 0.5, -125); KeyFrame.BackgroundColor3 = ColorFondo; KeyFrame.Active = true; KeyFrame.Draggable = true; Instance.new("UICorner", KeyFrame)
     local KS = Instance.new("UIStroke", KeyFrame); KS.Thickness = 3; ThemeColor(KS)
     local KeyTitle = Instance.new("TextLabel", KeyFrame); KeyTitle.Size = UDim2.new(1, 0, 0, 80); KeyTitle.Text = "ACUSADO NINJA HUB\nINGRESE CLAVE"; KeyTitle.BackgroundTransparency = 1; KeyTitle.Font = Enum.Font.Code; KeyTitle.TextSize = 18; ThemeColor(KeyTitle)
     local KeyInput = Instance.new("TextBox", KeyFrame); KeyInput.Size = UDim2.new(0, 280, 0, 50); KeyInput.Position = UDim2.new(0.5, -140, 0.45, 0); KeyInput.PlaceholderText = "••••••••"; KeyInput.Text = ""; KeyInput.BackgroundColor3 = Color3.fromRGB(15,0,30); KeyInput.TextColor3 = Color3.new(1,1,1); KeyInput.ClearTextOnFocus = true; Instance.new("UICorner", KeyInput)
     local KeyBtn = Instance.new("TextButton", KeyFrame); KeyBtn.Size = UDim2.new(0, 180, 0, 45); KeyBtn.Position = UDim2.new(0.5, -90, 0.75, 0); KeyBtn.Text = "LOG IN"; KeyBtn.BackgroundColor3 = ColorSecundario; KeyBtn.Font = Enum.Font.Code; Instance.new("UICorner", KeyBtn); ThemeColor(KeyBtn)
 
-    -- // MENÚ //
     local MainFrame = Instance.new("Frame", ScreenGui); MainFrame.Size = UDim2.new(0, 560, 0, 480); MainFrame.Position = UDim2.new(0.5, -280, 0.5, -240); MainFrame.BackgroundColor3 = ColorFondo; MainFrame.Visible = false; MainFrame.Active = true; MainFrame.Draggable = true; Instance.new("UICorner", MainFrame)
     local MS = Instance.new("UIStroke", MainFrame); MS.Thickness = 2; ThemeColor(MS)
     local Banner = Instance.new("TextLabel", MainFrame); Banner.Size = UDim2.new(1, 0, 0, 50); Banner.Text = "ACUSADO NINJA HUB | ELITE SAFE"; Banner.BackgroundTransparency = 1; Banner.Font = Enum.Font.Code; Banner.TextSize = 14; ThemeColor(Banner)
@@ -111,23 +115,26 @@ local function ExecuteHub()
     end)
     OpenBtn.MouseButton1Click:Connect(function() MainFrame.Visible = true; OpenBtn.Visible = false end)
 
-    -- // ESP (Color Morado) //
+    -- // LÓGICA ESP //
     local function CreateESP(plt)
         local Box = Drawing.new("Square"); Box.Thickness = 1; Box.Filled = false; Box.Visible = false
         local NameTag = Drawing.new("Text"); NameTag.Size = 14; NameTag.Outline = true; NameTag.Visible = false; NameTag.Color = Color3.new(1,1,1)
         local InvTag = Drawing.new("Text"); InvTag.Size = 13; InvTag.Outline = true; InvTag.Visible = false; InvTag.Color = ColorPrincipal
         local Tracer = Drawing.new("Line"); Tracer.Thickness = 1; Tracer.Visible = false
 
-        RunService.RenderStepped:Connect(function()
-            pcall(function()
+        local Connection; Connection = RunService.RenderStepped:Connect(function()
+            if not plt or not plt.Parent then 
+                Box:Remove(); NameTag:Remove(); InvTag:Remove(); Tracer:Remove(); Connection:Disconnect() 
+                return 
+            end
+            SafeCall(function()
                 if plt.Character and plt.Character:FindFirstChild("HumanoidRootPart") then
                     local hrp = plt.Character.HumanoidRootPart
                     local pos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
                     if onScreen then
-                        local color = ColorPrincipal
                         local sizeX, sizeY = 2000/pos.Z, 3000/pos.Z
-                        Box.Visible = _G.Box_Enabled; Box.Size = Vector2.new(sizeX, sizeY); Box.Position = Vector2.new(pos.X - sizeX/2, pos.Y - sizeY/2); Box.Color = color
-                        Tracer.Visible = _G.Tracer_Enabled; Tracer.From = Vector2.new(Camera.ViewportSize.X / 2, 0); Tracer.To = Vector2.new(pos.X, pos.Y - sizeY/2); Tracer.Color = color
+                        Box.Visible = _G.Box_Enabled; Box.Size = Vector2.new(sizeX, sizeY); Box.Position = Vector2.new(pos.X - sizeX/2, pos.Y - sizeY/2); Box.Color = ColorPrincipal
+                        Tracer.Visible = _G.Tracer_Enabled; Tracer.From = Vector2.new(Camera.ViewportSize.X / 2, 0); Tracer.To = Vector2.new(pos.X, pos.Y - sizeY/2); Tracer.Color = ColorPrincipal
                         if _G.Names_Enabled then NameTag.Text = plt.Name; NameTag.Position = Vector2.new(pos.X, pos.Y - (sizeY/2) - 15); NameTag.Visible = true else NameTag.Visible = false end
                         if _G.Inv_Enabled then
                             local w = "NADA"; for _, t in pairs(plt.Character:GetChildren()) do if t:IsA("Tool") then w = t.Name break end end
@@ -138,9 +145,11 @@ local function ExecuteHub()
             end)
         end)
     end
-    for _, p in pairs(Players:GetPlayers()) do if p ~= L_Plr then CreateESP(p) end end
 
-    -- // TABS //
+    for _, p in pairs(Players:GetPlayers()) do if p ~= L_Plr then CreateESP(p) end end
+    Players.PlayerAdded:Connect(function(p) if p ~= L_Plr then CreateESP(p) end end)
+
+    -- // TABS Y BOTONES //
     local Container = Instance.new("Frame", MainFrame); Container.Position = UDim2.new(0, 160, 0, 60); Container.Size = UDim2.new(1, -170, 1, -70); Container.BackgroundTransparency = 1
     local Tabs = { Combat = Instance.new("ScrollingFrame"), Visuals = Instance.new("ScrollingFrame"), Farm = Instance.new("ScrollingFrame"), Misc = Instance.new("ScrollingFrame") }
     for name, frame in pairs(Tabs) do frame.Size = UDim2.new(1, 0, 1, 0); frame.BackgroundTransparency = 1; frame.Visible = (name == "Combat"); frame.Parent = Container; frame.ScrollBarThickness = 0; Instance.new("UIListLayout", frame).Padding = UDim.new(0, 10) end
@@ -184,4 +193,4 @@ local function ExecuteHub()
     CloseBtn.MouseButton1Click:Connect(function() MainFrame.Visible = false; OpenBtn.Visible = true end)
 end
 
-pcall(ExecuteHub)
+SafeCall(ExecuteHub)
