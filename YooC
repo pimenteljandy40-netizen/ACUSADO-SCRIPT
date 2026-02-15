@@ -1,4 +1,4 @@
--- [[ ACUSADO NINJA HUB - ELITE SAFE FULL EDITION 👑 ]]
+-- [[ ACUSADO NINJA HUB - MAIN ACCOUNT SAFE EDITION 👑 ]]
 local CLAVE_CORRECTA = "BACK01"
 local Players = game:GetService("Players")
 local L_Plr = Players.LocalPlayer
@@ -18,10 +18,7 @@ local function CheckForMods(plt)
         L_Plr:Kick("\n[ACUSADO SAFE]\nModerador Detectado: " .. plt.Name)
     end
 end
-
-Players.PlayerAdded:Connect(function(plt) 
-    if _G.AutoLeave then CheckForMods(plt) end 
-end)
+Players.PlayerAdded:Connect(function(plt) if _G.AutoLeave then CheckForMods(plt) end end)
 
 local function GetSafeParent()
     local success, parent = pcall(function() return (gethui and gethui()) or game:GetService("CoreGui") end)
@@ -51,9 +48,9 @@ local function ExecuteHub()
     _G.Box_Enabled = false; _G.Names_Enabled = false; _G.Inv_Enabled = false; _G.Tracer_Enabled = false
     _G.AuxilioMobile = false; _G.AutoLeave = true
 
-    -- // LÓGICA HITBOX //
+    -- // LÓGICA HITBOX SEGURA E INVISIBLE //
     task.spawn(function()
-        while task.wait(0.5) do
+        while task.wait(0.7) do -- Intervalo ligeramente más largo para mayor seguridad
             pcall(function()
                 for _, p in pairs(Players:GetPlayers()) do
                     if p ~= L_Plr and p.Character then
@@ -62,7 +59,8 @@ local function ExecuteHub()
                             if part and part:IsA("BasePart") then
                                 if isEnabled then
                                     part.Size = Vector3.new(_G.Hitbox_Size, _G.Hitbox_Size, _G.Hitbox_Size)
-                                    part.Transparency = (partName == "Head" and 0.5 or 0.8)
+                                    -- CAMBIO SOLICITADO: Cabeza 100% invisible para evitar reportes visuales
+                                    part.Transparency = 1 
                                     part.CanCollide = false
                                     part.Massless = true
                                 else
@@ -82,20 +80,34 @@ local function ExecuteHub()
         end
     end)
 
-    -- // SISTEMA ESP (CORREGIDO PARA NUEVOS JUGADORES) //
+    -- // EL RESTO DEL CÓDIGO (GUI Y ESP) SE MANTIENE IGUAL //
+    local OpenBtn = Instance.new("TextButton", ScreenGui); OpenBtn.Size = UDim2.new(0, 50, 0, 50); OpenBtn.Position = UDim2.new(0, 15, 0.5, 0); OpenBtn.BackgroundColor3 = Color3.fromRGB(5, 5, 5); OpenBtn.Text = "N"; OpenBtn.TextSize = 25; OpenBtn.Visible = false; OpenBtn.Active = true; OpenBtn.Draggable = true
+    Instance.new("UICorner", OpenBtn).CornerRadius = UDim.new(1, 0); local OS = Instance.new("UIStroke", OpenBtn); OS.Thickness = 2; Rainbow(OS); Rainbow(OpenBtn)
+
+    local KeyFrame = Instance.new("Frame", ScreenGui); KeyFrame.Size = UDim2.new(0, 400, 0, 250); KeyFrame.Position = UDim2.new(0.5, -200, 0.5, -125); KeyFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10); KeyFrame.Active = true; KeyFrame.Draggable = true; Instance.new("UICorner", KeyFrame)
+    local KS = Instance.new("UIStroke", KeyFrame); KS.Thickness = 3; Rainbow(KS)
+    local KeyTitle = Instance.new("TextLabel", KeyFrame); KeyTitle.Size = UDim2.new(1, 0, 0, 80); KeyTitle.Text = "ACUSADO NINJA HUB\nINGRESE CLAVE"; KeyTitle.BackgroundTransparency = 1; KeyTitle.Font = Enum.Font.Code; KeyTitle.TextSize = 18; Rainbow(KeyTitle)
+    local KeyInput = Instance.new("TextBox", KeyFrame); KeyInput.Size = UDim2.new(0, 280, 0, 50); KeyInput.Position = UDim2.new(0.5, -140, 0.45, 0); KeyInput.PlaceholderText = "••••••••"; KeyInput.Text = ""; KeyInput.BackgroundColor3 = Color3.fromRGB(20,20,20); KeyInput.TextColor3 = Color3.new(1,1,1); KeyInput.ClearTextOnFocus = true; Instance.new("UICorner", KeyInput)
+    local KeyBtn = Instance.new("TextButton", KeyFrame); KeyBtn.Size = UDim2.new(0, 180, 0, 45); KeyBtn.Position = UDim2.new(0.5, -90, 0.75, 0); KeyBtn.Text = "LOG IN"; KeyBtn.BackgroundColor3 = Color3.fromRGB(15, 15, 15); KeyBtn.Font = Enum.Font.Code; Instance.new("UICorner", KeyBtn); Rainbow(KeyBtn)
+
+    local MainFrame = Instance.new("Frame", ScreenGui); MainFrame.Size = UDim2.new(0, 560, 0, 480); MainFrame.Position = UDim2.new(0.5, -280, 0.5, -240); MainFrame.BackgroundColor3 = Color3.fromRGB(8, 8, 8); MainFrame.Visible = false; MainFrame.Active = true; MainFrame.Draggable = true; Instance.new("UICorner", MainFrame)
+    local MS = Instance.new("UIStroke", MainFrame); MS.Thickness = 2; Rainbow(MS)
+    local Banner = Instance.new("TextLabel", MainFrame); Banner.Size = UDim2.new(1, 0, 0, 50); Banner.Text = "ACUSADO NINJA HUB | ELITE SAFE"; Banner.BackgroundTransparency = 1; Banner.Font = Enum.Font.Code; Banner.TextSize = 14; Rainbow(Banner)
+
+    KeyBtn.MouseButton1Click:Connect(function()
+        if KeyInput.Text == CLAVE_CORRECTA then KeyFrame.Visible = false; MainFrame.Visible = true 
+        else KeyInput.Text = ""; KeyInput.PlaceholderText = "CLAVE MALA" end
+    end)
+    OpenBtn.MouseButton1Click:Connect(function() MainFrame.Visible = true; OpenBtn.Visible = false end)
+
     local function CreateESP(plt)
         if plt == L_Plr then return end
-        local Box = Drawing.new("Square"); Box.Thickness = 1; Box.Filled = false; Box.Visible = false
+        local Box = Drawing.new("Square"); Box.Thickness = 1; Box.Visible = false
         local NameTag = Drawing.new("Text"); NameTag.Size = 14; NameTag.Outline = true; NameTag.Visible = false; NameTag.Color = Color3.new(1,1,1)
         local InvTag = Drawing.new("Text"); InvTag.Size = 13; InvTag.Outline = true; InvTag.Visible = false; InvTag.Color = Color3.new(0,1,0)
         local Tracer = Drawing.new("Line"); Tracer.Thickness = 1; Tracer.Visible = false
-
-        local connection
-        connection = RunService.RenderStepped:Connect(function()
-            if not plt.Parent then 
-                Box:Remove(); NameTag:Remove(); InvTag:Remove(); Tracer:Remove(); connection:Disconnect() 
-                return 
-            end
+        local conn; conn = RunService.RenderStepped:Connect(function()
+            if not plt.Parent then Box:Remove(); NameTag:Remove(); InvTag:Remove(); Tracer:Remove(); conn:Disconnect() return end
             pcall(function()
                 if plt.Character and plt.Character:FindFirstChild("HumanoidRootPart") then
                     local hrp = plt.Character.HumanoidRootPart
@@ -115,34 +127,9 @@ local function ExecuteHub()
             end)
         end)
     end
-
-    -- Activar para los que ya están y para los que entren
     for _, p in pairs(Players:GetPlayers()) do CreateESP(p) end
     Players.PlayerAdded:Connect(CreateESP)
 
-    -- // INTERFAZ (BOTÓN FLOTANTE) //
-    local OpenBtn = Instance.new("TextButton", ScreenGui); OpenBtn.Size = UDim2.new(0, 50, 0, 50); OpenBtn.Position = UDim2.new(0, 15, 0.5, 0); OpenBtn.BackgroundColor3 = Color3.fromRGB(5, 5, 5); OpenBtn.Text = "N"; OpenBtn.TextSize = 25; OpenBtn.Visible = false; OpenBtn.Active = true; OpenBtn.Draggable = true
-    Instance.new("UICorner", OpenBtn).CornerRadius = UDim.new(1, 0); local OS = Instance.new("UIStroke", OpenBtn); OS.Thickness = 2; Rainbow(OS); Rainbow(OpenBtn)
-
-    -- // INTERFAZ (LOGIN) //
-    local KeyFrame = Instance.new("Frame", ScreenGui); KeyFrame.Size = UDim2.new(0, 400, 0, 250); KeyFrame.Position = UDim2.new(0.5, -200, 0.5, -125); KeyFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10); KeyFrame.Active = true; KeyFrame.Draggable = true; Instance.new("UICorner", KeyFrame)
-    local KS = Instance.new("UIStroke", KeyFrame); KS.Thickness = 3; Rainbow(KS)
-    local KeyTitle = Instance.new("TextLabel", KeyFrame); KeyTitle.Size = UDim2.new(1, 0, 0, 80); KeyTitle.Text = "ACUSADO NINJA HUB\nINGRESE CLAVE"; KeyTitle.BackgroundTransparency = 1; KeyTitle.Font = Enum.Font.Code; KeyTitle.TextSize = 18; Rainbow(KeyTitle)
-    local KeyInput = Instance.new("TextBox", KeyFrame); KeyInput.Size = UDim2.new(0, 280, 0, 50); KeyInput.Position = UDim2.new(0.5, -140, 0.45, 0); KeyInput.PlaceholderText = "••••••••"; KeyInput.Text = ""; KeyInput.BackgroundColor3 = Color3.fromRGB(20,20,20); KeyInput.TextColor3 = Color3.new(1,1,1); KeyInput.ClearTextOnFocus = true; Instance.new("UICorner", KeyInput)
-    local KeyBtn = Instance.new("TextButton", KeyFrame); KeyBtn.Size = UDim2.new(0, 180, 0, 45); KeyBtn.Position = UDim2.new(0.5, -90, 0.75, 0); KeyBtn.Text = "LOG IN"; KeyBtn.BackgroundColor3 = Color3.fromRGB(15, 15, 15); KeyBtn.Font = Enum.Font.Code; Instance.new("UICorner", KeyBtn); Rainbow(KeyBtn)
-
-    -- // INTERFAZ (MENÚ PRINCIPAL) //
-    local MainFrame = Instance.new("Frame", ScreenGui); MainFrame.Size = UDim2.new(0, 560, 0, 480); MainFrame.Position = UDim2.new(0.5, -280, 0.5, -240); MainFrame.BackgroundColor3 = Color3.fromRGB(8, 8, 8); MainFrame.Visible = false; MainFrame.Active = true; MainFrame.Draggable = true; Instance.new("UICorner", MainFrame)
-    local MS = Instance.new("UIStroke", MainFrame); MS.Thickness = 2; Rainbow(MS)
-    local Banner = Instance.new("TextLabel", MainFrame); Banner.Size = UDim2.new(1, 0, 0, 50); Banner.Text = "ACUSADO NINJA HUB | ELITE SAFE"; Banner.BackgroundTransparency = 1; Banner.Font = Enum.Font.Code; Banner.TextSize = 14; Rainbow(Banner)
-
-    KeyBtn.MouseButton1Click:Connect(function()
-        if KeyInput.Text == CLAVE_CORRECTA then KeyFrame.Visible = false; MainFrame.Visible = true 
-        else KeyInput.Text = ""; KeyInput.PlaceholderText = "CLAVE MALA" end
-    end)
-    OpenBtn.MouseButton1Click:Connect(function() MainFrame.Visible = true; OpenBtn.Visible = false end)
-
-    -- // TABS //
     local Container = Instance.new("Frame", MainFrame); Container.Position = UDim2.new(0, 160, 0, 60); Container.Size = UDim2.new(1, -170, 1, -70); Container.BackgroundTransparency = 1
     local Tabs = { Combat = Instance.new("ScrollingFrame"), Visuals = Instance.new("ScrollingFrame"), Farm = Instance.new("ScrollingFrame"), Misc = Instance.new("ScrollingFrame") }
     for name, frame in pairs(Tabs) do frame.Size = UDim2.new(1, 0, 1, 0); frame.BackgroundTransparency = 1; frame.Visible = (name == "Combat"); frame.Parent = Container; frame.ScrollBarThickness = 0; Instance.new("UIListLayout", frame).Padding = UDim.new(0, 10) end
