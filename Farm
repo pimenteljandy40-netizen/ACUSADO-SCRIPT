@@ -1,12 +1,14 @@
 --[[ 
     PROTECTED BY ACUSADO SYSTEM 
     GUI: ACUSADO NINJA HUB
+    COLOR THEME: RED & BLACK
     KEY: BACK01
 ]]
 
 local _0xKey = "BACK01"
 local _0xPlr = game:GetService("Players").LocalPlayer
 local _0xVIM = game:GetService("VirtualInputManager")
+local _0xVU = game:GetService("VirtualUser")
 
 local function _0xSecure(f)
     local s, r = pcall(f)
@@ -24,42 +26,42 @@ _0xSecure(function()
     local toggle = Instance.new("TextButton", sg)
     toggle.Size, toggle.Position = UDim2.new(0,45,0,45), UDim2.new(0,10,0,150)
     toggle.Text, toggle.Visible = "🥷", false
-    toggle.BackgroundColor3, toggle.TextColor3 = Color3.fromRGB(10,10,15), Color3.fromRGB(0,120,255)
+    toggle.BackgroundColor3, toggle.TextColor3 = Color3.fromRGB(20,0,0), Color3.fromRGB(255,0,0)
     Instance.new("UICorner", toggle).CornerRadius = UDim.new(1,0)
-    Instance.new("UIStroke", toggle).Color = Color3.fromRGB(0,120,255)
+    Instance.new("UIStroke", toggle).Color = Color3.fromRGB(255,0,0)
     toggle.Active, toggle.Draggable = true, true
 
     -- [ LOGIN FRAME ]
     local login = Instance.new("Frame", sg)
     login.Size, login.Position = UDim2.new(0,220,0,150), UDim2.new(0.5,-110,0.4,-75)
-    login.BackgroundColor3 = Color3.fromRGB(10,10,12)
-    Instance.new("UIStroke", login).Color = Color3.fromRGB(0,120,255)
+    login.BackgroundColor3 = Color3.fromRGB(10,0,0)
+    Instance.new("UIStroke", login).Color = Color3.fromRGB(255,0,0)
 
     local input = Instance.new("TextBox", login)
     input.Size, input.Position = UDim2.new(0,180,0,35), UDim2.new(0,20,0,30)
     input.PlaceholderText, input.Text = "INGRESE KEY", ""
-    input.BackgroundColor3, input.TextColor3 = Color3.fromRGB(20,20,25), Color3.fromRGB(255,255,255)
+    input.BackgroundColor3, input.TextColor3 = Color3.fromRGB(30,0,0), Color3.fromRGB(255,255,255)
 
     local enterBtn = Instance.new("TextButton", login)
     enterBtn.Size, enterBtn.Position = UDim2.new(0,180,0,40), UDim2.new(0,20,0,80)
-    enterBtn.Text, enterBtn.BackgroundColor3 = "ENTRAR", Color3.fromRGB(0,80,200)
+    enterBtn.Text, enterBtn.BackgroundColor3 = "ENTRAR", Color3.fromRGB(150,0,0)
     enterBtn.TextColor3, enterBtn.Font = Color3.fromRGB(255,255,255), "GothamBold"
     Instance.new("UICorner", enterBtn)
 
     -- [ MAIN HUB ]
     local main = Instance.new("Frame", sg)
     main.Size, main.Position = UDim2.new(0,260,0,180), UDim2.new(0.5,-130,0.4,-90)
-    main.BackgroundColor3, main.Visible, main.Active, main.Draggable = Color3.fromRGB(10,10,15), false, true, true
-    Instance.new("UIStroke", main).Color = Color3.fromRGB(0,120,255)
+    main.BackgroundColor3, main.Visible, main.Active, main.Draggable = Color3.fromRGB(5,5,5), false, true, true
+    Instance.new("UIStroke", main).Color = Color3.fromRGB(255,0,0)
 
     local title = Instance.new("TextLabel", main)
     title.Size, title.Text = UDim2.new(1,0,0,40), "ACUSADO NINJA HUB"
-    title.BackgroundColor3, title.TextColor3 = Color3.fromRGB(15,15,20), Color3.fromRGB(0,180,255)
+    title.BackgroundColor3, title.TextColor3 = Color3.fromRGB(20,0,0), Color3.fromRGB(255,0,0)
     title.Font = "GothamBold"
 
     local btn = Instance.new("TextButton", main)
     btn.Size, btn.Position = UDim2.new(0,220,0,50), UDim2.new(0,20,0,60)
-    btn.Text, btn.BackgroundColor3 = "AUTO-FARM: OFF", Color3.fromRGB(30,30,35)
+    btn.Text, btn.BackgroundColor3 = "AUTO-FARM: OFF", Color3.fromRGB(25,25,25)
     btn.TextColor3, btn.Font = Color3.fromRGB(200,200,200), "GothamBold"
     Instance.new("UICorner", btn)
 
@@ -71,10 +73,10 @@ _0xSecure(function()
             toggle.Visible = true
         else
             enterBtn.Text = "KEY INCORRECTA"
-            enterBtn.BackgroundColor3 = Color3.fromRGB(150,0,0)
+            enterBtn.BackgroundColor3 = Color3.fromRGB(255,0,0)
             task.wait(1)
             enterBtn.Text = "ENTRAR"
-            enterBtn.BackgroundColor3 = Color3.fromRGB(0,80,200)
+            enterBtn.BackgroundColor3 = Color3.fromRGB(150,0,0)
         end
     end)
 
@@ -99,7 +101,7 @@ _0xSecure(function()
     btn.MouseButton1Click:Connect(function()
         farm = not farm
         btn.Text = farm and "AUTO-FARM: ON" or "AUTO-FARM: OFF"
-        btn.BackgroundColor3 = farm and Color3.fromRGB(0,120,255) or Color3.fromRGB(30,30,35)
+        btn.BackgroundColor3 = farm and Color3.fromRGB(200,0,0) or Color3.fromRGB(25,25,25)
         
         if farm then
             _0xDel()
@@ -129,8 +131,12 @@ _0xSecure(function()
         end
     end)
 
+    -- [ ANTI-AFK REFORZADO ]
     _0xPlr.Idled:Connect(function() 
-        game:GetService("VirtualUser"):CaptureController()
-        game:GetService("VirtualUser"):ClickButton2(Vector2.new()) 
+        _0xVU:CaptureController()
+        _0xVU:ClickButton2(Vector2.new()) 
+        _0xVIM:SendKeyEvent(true, Enum.KeyCode.RightShift, false, game)
+        task.wait(0.1)
+        _0xVIM:SendKeyEvent(false, Enum.KeyCode.RightShift, false, game)
     end)
 end)
