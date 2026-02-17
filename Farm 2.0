@@ -1,5 +1,4 @@
--- [[ ACUSADO NINJA HUB MASHMELLOW - SECURITY EDITION ]] --
--- SEGURIDAD ACTIVADA | LOGICA DE FARM PRESERVADA
+-- [[ ACUSADO NINJA HUB MASHMELLOW - ANTI-TIMEOUT EDITION ]] --
 
 local _K = "BACK01"
 local lp = game:GetService("Players").LocalPlayer
@@ -8,26 +7,30 @@ local vu = game:GetService("VirtualUser")
 local coreGui = game:GetService("CoreGui")
 local http = game:GetService("HttpService")
 
-if not lp or not coreGui then return end
+-- [ ANTI-TIMEOUT / ANTI-KICK ]
+-- Esto evita que el servidor te desconecte por "Client-Server Inactivity"
+if getconnections then
+    for _, v in pairs(getconnections(lp.Idled)) do
+        v:Disable()
+    end
+end
 
 local function GetRnd() return http:GenerateGUID(false) end
 
--- Limpieza de GUIs antiguas
+-- Limpieza
 for _, v in pairs(coreGui:GetChildren()) do
     if v:FindFirstChild("AC_TAG_SEC") then v:Destroy() end
 end
 
-local ScreenGui = Instance.new("ScreenGui")
+local ScreenGui = Instance.new("ScreenGui", coreGui)
 ScreenGui.Name = GetRnd()
-ScreenGui.Parent = coreGui
-ScreenGui.ResetOnSpawn = false
 local tag = Instance.new("BoolValue", ScreenGui)
 tag.Name = "AC_TAG_SEC"
 
 local MainBlue = Color3.fromRGB(0, 160, 255)
 local DarkBg = Color3.fromRGB(7, 7, 10)
 
--- [ BOTÓN DE REGRESO (MINIMIZADO) ]
+-- [ BOTÓN DE REGRESO ]
 local OpenBtn = Instance.new("TextButton", ScreenGui)
 OpenBtn.Size = UDim2.new(0, 50, 0, 50)
 OpenBtn.Position = UDim2.new(0, 10, 0.5, -25)
@@ -70,7 +73,6 @@ LoginBtn.Text = "VERIFICAR"
 LoginBtn.Font = Enum.Font.GothamBold
 Instance.new("UICorner", LoginBtn)
 
--- [ HUB PRINCIPAL ]
 local function StartHub()
     LoginFrame:Destroy()
     
@@ -83,7 +85,6 @@ local function StartHub()
     Instance.new("UICorner", MainFrame)
     Instance.new("UIStroke", MainFrame).Color = MainBlue
 
-    -- Botón de Cerrar (X)
     local CloseBtn = Instance.new("TextButton", MainFrame)
     CloseBtn.Size = UDim2.new(0, 30, 0, 30)
     CloseBtn.Position = UDim2.new(1, -35, 0, 5)
@@ -149,11 +150,10 @@ local function StartHub()
                 pcall(function()
                     for _, itemName in ipairs(items) do
                         if not farmActive then break end
-                        local char = lp.Character
-                        local tool = lp.Backpack:FindFirstChild(itemName) or (char and char:FindFirstChild(itemName))
-                        if tool and char and char:FindFirstChild("Humanoid") then
-                            char.Humanoid:EquipTool(tool)
-                            task.wait(0.3)
+                        local tool = lp.Backpack:FindFirstChild(itemName) or (lp.Character and lp.Character:FindFirstChild(itemName))
+                        if tool then
+                            lp.Character.Humanoid:EquipTool(tool)
+                            task.wait(0.4) -- Un poco más de tiempo para evitar lag
                             vim:SendMouseButtonEvent(0, 0, 0, true, game, 0)
                             task.wait(0.1)
                             vim:SendMouseButtonEvent(0, 0, 0, false, game, 0)
@@ -161,11 +161,11 @@ local function StartHub()
                             vim:SendKeyEvent(true, Enum.KeyCode.E, false, game)
                             task.wait(0.1)
                             vim:SendKeyEvent(false, Enum.KeyCode.E, false, game)
-                            task.wait(1.5)
+                            task.wait(1.6)
                         end
                     end
                 end)
-                task.wait(0.5)
+                task.wait(0.7)
             end
         end)
     end)
@@ -186,34 +186,14 @@ local function StartHub()
         end)
     end)
 
+    -- Bucle de Info e Inventario
     task.spawn(function()
-        while task.wait(1) do
+        while task.wait(1.5) do
             local char = lp.Character
             if not char or not char:FindFirstChild("HumanoidRootPart") then continue end
-            if sellActive then
-                local isNear = false
-                for _, v in pairs(workspace:GetDescendants()) do
-                    if (v.Name:lower():find("sell") or v.Name:lower():find("buyer") or v:IsA("ProximityPrompt")) then
-                        local pos = v:IsA("Model") and v.PrimaryPart and v.PrimaryPart.Position or (v:IsA("BasePart") and v.Position)
-                        if pos and (char.HumanoidRootPart.Position - pos).Magnitude < 15 then isNear = true break end
-                    end
-                end
-                if isNear then
-                    pcall(function()
-                        for _, i in pairs(lp.Backpack:GetChildren()) do
-                            if i.Name:find("Small") or i.Name:find("Medium") or i.Name:find("Large") then
-                                char.Humanoid:EquipTool(i)
-                                task.wait(0.2)
-                                vim:SendKeyEvent(true, Enum.KeyCode.E, false, game)
-                                task.wait(0.1)
-                            end
-                        end
-                    end)
-                end
-            end
             local c = {W=0, S=0, G=0, B=0, Sm=0, M=0, L=0}
             local inv = lp.Backpack:GetChildren()
-            for _, v in pairs(char:GetChildren()) do table.insert(inv, v) end
+            for _, v in pairs(char:GetChildren()) do if v:IsA("Tool") then table.insert(inv, v) end end
             for _, i in pairs(inv) do
                 if i.Name == "Water" then c.W=c.W+1 
                 elseif i.Name == "Sugar Block Bag" then c.S=c.S+1 
@@ -223,7 +203,7 @@ local function StartHub()
                 elseif i.Name:find("Medium") then c.M=c.M+1 
                 elseif i.Name:find("Large") then c.L=c.L+1 end
             end
-            InfoLabel.Text = string.format("\n [ ACUSADO MASHMELLOW HUB ]\n\n PRODUCTOS:\n - Small: %d\n - Medium: %d\n - Large: %d\n\n MATERIALES:\n - Agua: %d\n - Azucar: %d\n - Gelatina:%d\n - Bolsas: %d\n\n [ SEGURIDAD ]\n Status: Protegido\n Key: Verified", c.Sm, c.M, c.L, c.W, c.S, c.G, c.B)
+            InfoLabel.Text = string.format("\n [ ACUSADO MASHMELLOW HUB ]\n\n PRODUCTOS:\n - Small: %d\n - Medium: %d\n - Large: %d\n\n MATERIALES:\n - Agua: %d\n - Azucar: %d\n - Gelatina:%d\n - Bolsas: %d\n\n [ SEGURIDAD ]\n Status: Protegido\n Anti-Kick: Activo", c.Sm, c.M, c.L, c.W, c.S, c.G, c.B)
         end
     end)
 end
@@ -232,11 +212,21 @@ LoginBtn.MouseButton1Click:Connect(function()
     if KeyInput.Text == _K then StartHub() else LoginBtn.Text = "ERROR" task.wait(1) LoginBtn.Text = "VERIFICAR" end
 end)
 
--- [[ ANTI-AFK & SAFE MODE ACTIVADO ]] --
+-- [ ANTI-AFK FINAL REFORZADO ]
 lp.Idled:Connect(function() 
     vu:CaptureController() 
     vu:ClickButton2(Vector2.new()) 
+    task.wait(0.5)
     vim:SendKeyEvent(true, Enum.KeyCode.RightControl, false, game)
     task.wait(0.1)
     vim:SendKeyEvent(false, Enum.KeyCode.RightControl, false, game)
+end)
+
+-- Movimiento preventivo cada 2 minutos por si acaso
+task.spawn(function()
+    while task.wait(120) do
+        if lp.Character and lp.Character:FindFirstChild("Humanoid") then
+            lp.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+        end
+    end
 end)
