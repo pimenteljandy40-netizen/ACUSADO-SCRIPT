@@ -232,4 +232,11 @@ LoginBtn.MouseButton1Click:Connect(function()
     if KeyInput.Text == _K then StartHub() else LoginBtn.Text = "ERROR" task.wait(1) LoginBtn.Text = "VERIFICAR" end
 end)
 
-lp.Idled:Connect(function() vu:CaptureController() vu:ClickButton2(Vector2.new()) end)
+-- [[ ANTI-AFK & SAFE MODE ACTIVADO ]] --
+lp.Idled:Connect(function() 
+    vu:CaptureController() 
+    vu:ClickButton2(Vector2.new()) 
+    vim:SendKeyEvent(true, Enum.KeyCode.RightControl, false, game)
+    task.wait(0.1)
+    vim:SendKeyEvent(false, Enum.KeyCode.RightControl, false, game)
+end)
