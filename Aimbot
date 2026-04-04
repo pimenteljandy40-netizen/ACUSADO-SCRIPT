@@ -1,0 +1,132 @@
+-- [[ ACUSADO NINJA HUB ]] --
+-- Key: BACK01 | Version: South Bronx Fixed & Safe
+
+local p = game:GetService("Players")
+local lp = p.LocalPlayer
+local rs = game:GetService("RunService")
+local cam = workspace.CurrentCamera
+
+_G.Acusado = true
+_G.RadioFOV = 100 
+_G.AlturaManual = 0 
+_G.VerticalOffset = -30 
+_G.Smoothness = 0.35 -- Más alto = Más FIJO (Pegado) | Más bajo = Más SUAVE
+
+-- --- GUI ---
+local screenGui = Instance.new("ScreenGui", game:GetService("CoreGui"))
+local mainFrame = Instance.new("Frame", screenGui)
+mainFrame.Size = UDim2.new(0, 200, 0, 220)
+mainFrame.Position = UDim2.new(0.05, 0, 0.3, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+mainFrame.Active = true
+mainFrame.Draggable = true 
+Instance.new("UICorner", mainFrame)
+
+local title = Instance.new("TextLabel", mainFrame)
+title.Size = UDim2.new(1, 0, 0, 35)
+title.Text = "ACUSADO NINJA HUB"
+title.TextColor3 = Color3.fromRGB(255, 0, 0)
+title.BackgroundTransparency = 1
+title.Font = Enum.Font.GothamBold
+title.TextSize = 16
+
+-- Botones de Altura
+local upBtn = Instance.new("TextButton", mainFrame)
+upBtn.Size = UDim2.new(0, 160, 0, 30)
+upBtn.Position = UDim2.new(0.5, -80, 0.2, 0)
+upBtn.Text = "SUBIR MIRA (+)"
+upBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+upBtn.TextColor3 = Color3.new(1,1,1)
+upBtn.MouseButton1Click:Connect(function() _G.AlturaManual = _G.AlturaManual + 0.1 end)
+
+local downBtn = Instance.new("TextButton", mainFrame)
+downBtn.Size = UDim2.new(0, 160, 0, 30)
+downBtn.Position = UDim2.new(0.5, -80, 0.36, 0)
+downBtn.Text = "BAJAR MIRA (-)"
+downBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+downBtn.TextColor3 = Color3.new(1,1,1)
+downBtn.MouseButton1Click:Connect(function() _G.AlturaManual = _G.AlturaManual - 0.1 end)
+
+-- Botones de FOV
+local fovPlus = Instance.new("TextButton", mainFrame)
+fovPlus.Size = UDim2.new(0, 75, 0, 30)
+fovPlus.Position = UDim2.new(0.1, 0, 0.52, 0)
+fovPlus.Text = "FOV +"
+fovPlus.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+fovPlus.TextColor3 = Color3.new(1,1,1)
+fovPlus.MouseButton1Click:Connect(function() _G.RadioFOV = _G.RadioFOV + 10 end)
+
+local fovMinus = Instance.new("TextButton", mainFrame)
+fovMinus.Size = UDim2.new(0, 75, 0, 30)
+fovMinus.Position = UDim2.new(0.52, 0, 0.52, 0)
+fovMinus.Text = "FOV -"
+fovMinus.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+fovMinus.TextColor3 = Color3.new(1,1,1)
+fovMinus.MouseButton1Click:Connect(function() _G.RadioFOV = _G.RadioFOV - 10 end)
+
+-- Botón de Estado
+local toggleBtn = Instance.new("TextButton", mainFrame)
+toggleBtn.Size = UDim2.new(0, 160, 0, 30)
+toggleBtn.Position = UDim2.new(0.5, -80, 0.75, 0)
+toggleBtn.Text = "FIXED MODE: ON"
+toggleBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+toggleBtn.TextColor3 = Color3.new(1,1,1)
+toggleBtn.MouseButton1Click:Connect(function()
+    _G.Acusado = not _G.Acusado
+    toggleBtn.Text = _G.Acusado and "FIXED MODE: ON" or "OFF"
+    toggleBtn.BackgroundColor3 = _G.Acusado and Color3.fromRGB(150, 0, 0) or Color3.fromRGB(50, 50, 50)
+end)
+
+-- --- FOV CIRCLE (Arriba) ---
+local fovFrame = Instance.new("Frame", screenGui)
+fovFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+fovFrame.Position = UDim2.new(0.5, 0, 0.5, _G.VerticalOffset)
+fovFrame.BackgroundTransparency = 1
+local fovStroke = Instance.new("UIStroke", fovFrame)
+fovStroke.Color = Color3.fromRGB(255, 0, 0)
+fovStroke.Thickness = 2
+Instance.new("UICorner", fovFrame).CornerRadius = UDim.new(1, 0)
+
+-- --- LÓGICA KILLER FIJA ---
+rs.RenderStepped:Connect(function()
+    fovFrame.Size = UDim2.new(0, _G.RadioFOV * 2, 0, _G.RadioFOV * 2)
+    fovFrame.Position = UDim2.new(0.5, 0, 0.5, _G.VerticalOffset)
+    
+    if _G.Acusado then
+        local target = nil
+        local dist = _G.RadioFOV
+        local center = Vector2.new(cam.ViewportSize.X/2, (cam.ViewportSize.Y/2) + _G.VerticalOffset)
+        
+        for _, v in pairs(p:GetPlayers()) do
+            if v ~= lp and v.Character and v.Character:FindFirstChild("Head") then
+                local hum = v.Character:FindFirstChild("Humanoid")
+                if hum and hum.Health > 0 then
+                    local pos, vis = cam:WorldToViewportPoint(v.Character.Head.Position)
+                    if vis then
+                        local m = (Vector2.new(pos.X, pos.Y) - center).Magnitude
+                        if m < dist then dist = m target = v.Character end
+                    end
+                end
+            end
+        end
+
+        if target and target:FindFirstChild("Head") then
+            local headPos = target.Head.Position
+            local d = (cam.CFrame.Position - headPos).Magnitude
+            
+            -- Caída Progresiva: Cabeza -> Torso
+            local caida = -(d * 0.045)
+            if caida < -3.5 then caida = -3.5 end
+            
+            local finalPos = headPos + Vector3.new(0, caida + _G.AlturaManual, 0)
+            
+            -- CFrame con Lerp más agresivo para que esté bien FIJO
+            local targetCFrame = CFrame.lookAt(cam.CFrame.Position, finalPos)
+            cam.CFrame = cam.CFrame:Lerp(targetCFrame, _G.Smoothness)
+            
+            fovStroke.Color = Color3.fromRGB(255, 255, 255)
+        else
+            fovStroke.Color = Color3.fromRGB(255, 0, 0)
+        end
+    end
+end)
